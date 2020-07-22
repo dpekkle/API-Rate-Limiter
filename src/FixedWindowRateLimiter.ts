@@ -12,18 +12,17 @@ The hour is defined such that at XX:00 the full quota is restored.
 @param limit How many calls are permitted in an hour, defaults to 100.
 */
 export class FixedWindowRateLimiter extends RateLimiter {
-
-	checkRequestPermitted(): boolean {
+	public checkRequestPermitted(): boolean {
 		const previousRequests = this.getPreviousRequests();
 		return previousRequests.length < this.limit;
 	}
 
-	private getPreviousRequests(): RequestRow[] {
+	protected getPreviousRequests(): RequestRow[] {
 		this.cullOldRequests();
 		return this.storage.getRequests(this.requester);
 	}
 
-	private cullOldRequests(): void {
+	protected cullOldRequests(): void {
 		const requests = this.storage.getRequests(this.requester);
 		if (!requests.length){
 			return;
@@ -40,7 +39,6 @@ export class FixedWindowRateLimiter extends RateLimiter {
 
 	public getReponseStatusText(): string {
 		const secondsUntilAllowed = moment().endOf('hour').diff(moment(), 'seconds');
-
 		return `Rate limit exceeded. Try again in #${secondsUntilAllowed} seconds.`;
 	}
 }

@@ -15,17 +15,17 @@ Smoother than Fixed Window Rate Limiting as the quota will slowly return as old 
 export class SlidingLogRateLimiter extends RateLimiter {
 
 	// This is similar to FixedWindowRateLimit, however not all limit methods would be based on a simple "limit > previousRequests.length", so the base class shouldn't handle
-	checkRequestPermitted(): boolean {
+	public checkRequestPermitted(): boolean {
 		const previousRequests = this.getPreviousRequests();
 		return previousRequests.length < this.limit;
 	}
 
-	private getPreviousRequests(): RequestRow[] {
+	protected getPreviousRequests(): RequestRow[] {
 		this.cullOldRequests();
 		return this.storage.getRequests(this.requester);
 	}
 
-	cullOldRequests(): void {
+	protected cullOldRequests(): void {
 		const previousRequests = this.storage.getRequests(this.requester);
 		
 		const hourAgoMoment = moment().subtract(1, "hours");
@@ -38,13 +38,10 @@ export class SlidingLogRateLimiter extends RateLimiter {
 		this.storage.setRequests(this.requester, recentRequests);
 	}
 
-	getReponseStatusText(): string {
+	public getReponseStatusText(): string {
 		const oldestRequest = this.storage.getRequests(this.requester)[0];
-		const oldestRequestTime = moment(oldestRequest.requestTime).utc();
-		oldestRequestTime.add(1, "hour");
-		const now = moment();
-		const seconds = oldestRequestTime.diff(moment(), "seconds");
-		return `Rate limit exceeded. Try again in #${seconds} seconds.`;
+		const clearTime = moment(oldestRequest.requestTime).add(1, "hour");
+		const secondsToClearTime = clearTime.diff(moment(), "seconds");
+		return `Rate limit exceeded. Try again in #${secondsToClearTime} seconds.`;
 	}
-
 }

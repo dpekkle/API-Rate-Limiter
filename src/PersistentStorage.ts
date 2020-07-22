@@ -34,13 +34,13 @@ export class PersistentStorage {
 		return this.storage[table][user].push(...requests);
 	}
 
-	public clearRequests(table:string, user: string){
+	public clearRequests(table:string, user: string): void {
 		this.storage[table][user] = [];
 	}
 
-	public setRequests(table:string, user: string, requests: RequestRow[]){
+	public setRequests(table:string, user: string, requests: RequestRow[]): number {
 		this.clearRequests(table, user);
-		this.addRequests(table, user, requests);
+		return this.addRequests(table, user, requests);
 	}
 }
 
@@ -70,11 +70,11 @@ export class PersistentStorageView {
 		return this.storage.addRequests(this.table, user, requests);
 	}
 
-	public clearRequests(user: string){
+	public clearRequests(user: string): void {
 		return this.storage.clearRequests(this.table, user);
 	}
 
-	public setRequests(user: string, requests: RequestRow[]){
+	public setRequests(user: string, requests: RequestRow[]): number {
 		return this.storage.setRequests(this.table, user, requests);
 	}
 }

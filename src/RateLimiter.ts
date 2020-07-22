@@ -1,5 +1,3 @@
-// See https://konghq.com/blog/how-to-design-a-scalable-rate-limiting-algorithm/ for rate limiting  strategies
-
 import moment from "moment";
 import express from "express";
 import { PersistentStorage, PersistentStorageView } from "./persistentStorage";
@@ -14,7 +12,7 @@ export abstract class RateLimiter {
 	protected limit: number;
 	protected requester: string;
 
-	constructor(storage: PersistentStorage, table: string, limit: number = 100){
+	constructor(storage: PersistentStorage, table: string, limit = 100){
 		this.storage = new PersistentStorageView(storage, table);
 		this.limit = limit;
 	}
@@ -44,7 +42,7 @@ export abstract class RateLimiter {
 		return request.ip;
 	}
 
-	private addRequest(): void {
+	protected addRequest(): void {
 		this.storage.addRequest(this.requester, {requestTime: moment().format()});
 	}
-};
+}
