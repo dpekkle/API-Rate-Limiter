@@ -1,48 +1,48 @@
-import moment from "moment";
-import express from "express";
-import { PersistentStorage, PersistentStorageView } from "./persistentStorage";
+import moment from 'moment';
+import express from 'express';
+import { PersistentStorage, PersistentStorageView } from './persistentStorage';
 
 export interface ExpressError {
-	status: number;
-	statusMessage: string;
+    status: number;
+    statusMessage: string;
 }
 
 export abstract class RateLimiter {
-	protected storage: PersistentStorageView;
-	protected limit: number;
-	protected requester: string;
+    protected storage: PersistentStorageView;
+    protected limit: number;
+    protected requester: string;
 
-	constructor(storage: PersistentStorage, table: string, limit = 100){
-		this.storage = new PersistentStorageView(storage, table);
-		this.limit = limit;
-	}
+    constructor(storage: PersistentStorage, table: string, limit = 100) {
+        this.storage = new PersistentStorageView(storage, table);
+        this.limit = limit;
+    }
 
-	public processRequest(request: express.Request): true {
-		this.requester = this.getRequester(request);
+    public processRequest(request: express.Request): true {
+        this.requester = this.getRequester(request);
 
-		if(this.checkRequestPermitted()){
-			this.addRequest();
-			return true;
-		} else {
-			const error: ExpressError = {
-				status: 429,
-				statusMessage: this.getReponseStatusText()
-			};
-			throw error;
-		}
-	}
+        if (this.checkRequestPermitted()) {
+            this.addRequest();
+            return true;
+        } else {
+            const error: ExpressError = {
+                status: 429,
+                statusMessage: this.getReponseStatusText(),
+            };
+            throw error;
+        }
+    }
 
-	// A method that determines whether or not the request should be limited
-	abstract checkRequestPermitted(): boolean;
+    // A method that determines whether or not the request should be limited
+    abstract checkRequestPermitted(): boolean;
 
-	// The response error message to send to the requester
-	abstract getReponseStatusText(): string;
+    // The response error message to send to the requester
+    abstract getReponseStatusText(): string;
 
-	private getRequester(request: express.Request): string {
-		return request.ip;
-	}
+    private getRequester(request: express.Request): string {
+        return request.ip;
+    }
 
-	protected addRequest(): void {
-		this.storage.addRequest(this.requester, {requestTime: moment().format()});
-	}
+    protected addRequest(): void {
+        this.storage.addRequest(this.requester, { requestTime: moment().format() });
+    }
 }
