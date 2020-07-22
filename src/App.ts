@@ -24,7 +24,7 @@ export default class App {
 
 	private initializeRoutes(): void {
 		// If you want to share a RateLimiter between different routes 
-		const fixedLimiter = new FixedWindowRateLimiter(this.storage, uuid(), 2);
+		const fixedLimiter = new FixedWindowRateLimiter(this.storage, uuid(), 100);
 		this.app.get('/fixed', (req, res) => {
 			if (fixedLimiter.processRequest(req)){
 				res.json({ foo: 1 }); 
@@ -36,7 +36,7 @@ export default class App {
 			}
 		});
 		
-		const slidingLimiter = new SlidingLogRateLimiter(this.storage, uuid(), 2);
+		const slidingLimiter = new SlidingLogRateLimiter(this.storage, uuid(), 100);
 		this.app.get('/sliding', (req, res) => {
 			if (slidingLimiter.processRequest(req)){
 				res.json({ bar: 1 }); 
@@ -50,9 +50,9 @@ export default class App {
 		});	
 	}
 
-	public listen() {
+	public listen(): void {
 		this.app.listen(this.port, () => {
-			console.log( `server started at http://localhost:${ this.port }` );
+			console.log(`server started at http://localhost:${ this.port }\n\tAvailable endpoints:\n\t/fixed\n\t/sharedFixed\n\t/sliding`);
 		});
 	}
 }
